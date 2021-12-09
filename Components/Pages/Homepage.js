@@ -1,9 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, Dimensions, LogBox } from 'react-native';
+import { StyleSheet, Text, View, Dimensions } from 'react-native';
 import { Card, Button } from 'react-native-elements';
 import DateTimePicker from '@react-native-community/datetimepicker'
 import BackgroundTimer from 'react-native-background-timer';
-import { accelerometer, gyroscope } from 'react-native-sensors';
+import { gyroscope } from 'react-native-sensors';
+import KeepAwake from 'react-native-keep-awake';
+import ToggleSwitch from '../ToggleSwitch';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import Modal from '../MyModal';
+import TimerSetting from '../Modals/TimerSetting';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Homepage = () => {
 
@@ -60,20 +66,46 @@ const Homepage = () => {
     // )
 
     useEffect(()=>{
+        console.log("Window Dimension Width:",Dimensions.get('window').width);
         return () => {
             console.log("Timer Unmount")
-            subscription.unsubscribe()
+            // subscription.unsubscribe()
         }
     }, [])
 
-    LogBox.ignoreLogs(["`new NativeEventEmitter()` was called with"])
+    useEffect(()=>{
+        (async function getData() {
+            try {
+                const value = await AsyncStorage.getItem('@StudyApp:Awake');
+                if (value) {                    
+                    if (value == "true" ? true : false) KeepAwake.activate();
+                    else KeepAwake.deactivate();
+                }
+            } catch(e) { console.log(e); }
+        })()
+    }, [isTimerSettingVisible])
+
+    const [isTimerSettingVisible, setIsTimerSettingVisible] = useState(false);
 
     return (
+        <>
+        <Modal
+            isModalVisible={isTimerSettingVisible}
+            setModalVisible={setIsTimerSettingVisible}
+            component={ <TimerSetting /> }
+        />
         <View style={{flex:1, paddingBottom: 15}}>
             <Card containerStyle={{flex:1}} wrapperStyle={{flex:1}}>
                 <Card.Title style={{fontSize:30}}>Study Timer</Card.Title>
                 <Card.Divider/>
-                <View style={{flex:1, justifyContent:'center', alignItems:'center'}}>
+                <View style={{flex:1, justifyContent:'center', alignItems:'center'}}>                
+                    <MaterialCommunityIcons 
+                        name="cog-outline"
+                        color="grey"
+                        size={50}
+                        style={{right:0, top:0, position:'absolute'}}
+                        onPress={()=>{setIsTimerSettingVisible(true)}}
+                    />
                     <View style={styles.circle}>
                         <Text style={{color:'black', fontSize:35}}>
                             {formatClock().formatHours} : {formatClock().formatMinutes} :{" "}
@@ -96,6 +128,7 @@ const Homepage = () => {
                 />
             )}
         </View>
+        </>
     );
 };
 

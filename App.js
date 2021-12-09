@@ -7,20 +7,22 @@
  */
 
 import React from 'react';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, LogBox } from 'react-native';
 import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import { Homepage, Progress, Community, Setting } from './Components';
+import { Homepage, Progress, Community, Setting } from './Components/Pages';
 
 import { NavigationContainer } from '@react-navigation/native';
 
 const Tab = createMaterialBottomTabNavigator();
 
+LogBox.ignoreLogs(["`new NativeEventEmitter()` was called with"])
+
 const App = () => {
 
   return (
     <NavigationContainer>
-      <Tab.Navigator>
+      <Tab.Navigator >
         <Tab.Screen 
           name="Timer" 
           component={Homepage} 
