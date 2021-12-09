@@ -1,10 +1,9 @@
-import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { StyleSheet, Text, View, Dimensions, LogBox } from 'react-native';
 import { Card, Button } from 'react-native-elements';
 import DateTimePicker from '@react-native-community/datetimepicker'
-import { useState } from 'react';
-import { useEffect } from 'react';
 import BackgroundTimer from 'react-native-background-timer';
+import { accelerometer, gyroscope } from 'react-native-sensors';
 
 const Homepage = () => {
 
@@ -56,23 +55,36 @@ const Homepage = () => {
         return { formatHours, formatMinutes, formatSeconds }
     }
 
+    // const subscription = gyroscope.subscribe(({x,y,z,timestamp}) =>
+    //     console.log({x,y,z,timestamp})
+    // )
+
+    useEffect(()=>{
+        return () => {
+            console.log("Timer Unmount")
+            subscription.unsubscribe()
+        }
+    }, [])
+
+    LogBox.ignoreLogs(["`new NativeEventEmitter()` was called with"])
+
     return (
-        <View style={{flex:1}}>
+        <View style={{flex:1, paddingBottom: 15}}>
             <Card containerStyle={{flex:1}} wrapperStyle={{flex:1}}>
                 <Card.Title style={{fontSize:30}}>Study Timer</Card.Title>
                 <Card.Divider/>
-                <View style={{flex:1, justifyContent:'center'}}>
-                    <Text style={{color:'black', fontSize:20}}>
-                        {formatClock().formatHours} Hours {formatClock().formatMinutes} Mins{" "}
-                        {formatClock().formatSeconds} Secs
-                    </Text>
-                    <Button
-                        onPress={showTimePicker}
-                        title="Open Time Picker"
-                    />
+                <View style={{flex:1, justifyContent:'center', alignItems:'center'}}>
+                    <View style={styles.circle}>
+                        <Text style={{color:'black', fontSize:35}}>
+                            {formatClock().formatHours} : {formatClock().formatMinutes} :{" "}
+                            {formatClock().formatSeconds}
+                        </Text>
+                    </View>
                     <Button
                         onPress={() => setTimerOn(timerOn => !timerOn)}
-                        title="Start"
+                        title={timerOn ? "Stop" : "Start"}
+                        buttonStyle={{width: Dimensions.get('window').width*0.6}}
+                        titleStyle={{fontSize:25}}
                     />
                 </View>
             </Card>
@@ -88,7 +100,17 @@ const Homepage = () => {
 };
 
 const styles = StyleSheet.create({
-
+    circle: {
+        borderWidth:5,
+        borderColor: '#2288dd',
+        borderRadius: Math.round(Dimensions.get('window').width + Dimensions.get('window').height)/2,
+        width: Dimensions.get('window').width * 0.6,
+        height: Dimensions.get('window').width * 0.6,
+        backgroundColor: 'rgba(0,0,0,0)',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: 30
+    }
 });
 
 export default Homepage;

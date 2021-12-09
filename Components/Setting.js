@@ -5,7 +5,7 @@ import { Card } from 'react-native-elements';
 const Setting = () => {
 
   return (
-    <View style={{flex:1}}>
+    <View style={{flex:1, paddingBottom: 15}}>
         <Card containerStyle={{flex:1}} wrapperStyle={{flex:1}}>
             <Card.Title style={{fontSize:30}}>Setting</Card.Title>
             <Card.Divider/>

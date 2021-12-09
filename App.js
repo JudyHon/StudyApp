@@ -7,13 +7,10 @@
  */
 
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import Homepage from './Components/Homepage.js'
-import Progress from './Components/Progress.js';
-import Community from './Components/Community.js';
-import Setting from './Components/Setting.js';
+import { Homepage, Progress, Community, Setting } from './Components';
 
 import { NavigationContainer } from '@react-navigation/native';
 
@@ -25,17 +22,41 @@ const App = () => {
     <NavigationContainer>
       <Tab.Navigator>
         <Tab.Screen 
-          name="Home" 
+          name="Timer" 
           component={Homepage} 
           options={{
             tabBarIcon: ({color}) => (
-              <MaterialCommunityIcons name="home" color={color} size={26} />
+              <MaterialCommunityIcons name="alarm" color={color} size={26} />
             )
           }}
         />
-        <Tab.Screen name="Progress" component={Progress} />
-        <Tab.Screen name="Community" component={Community} />
-        <Tab.Screen name="Setting" component={Setting} />
+        <Tab.Screen 
+        name="Progress" 
+        component={Progress}
+        options={{
+            tabBarIcon: ({color}) => (
+              <MaterialCommunityIcons name="check-all" color={color} size={26} />
+            )
+          }}
+         />
+        <Tab.Screen 
+        name="Community" 
+        component={Community}
+        options={{
+            tabBarIcon: ({color}) => (
+              <MaterialCommunityIcons name="forum" color={color} size={26} />
+            )
+          }}
+         />
+        <Tab.Screen 
+        name="Setting" 
+        component={Setting}
+        options={{
+            tabBarIcon: ({color}) => (
+              <MaterialCommunityIcons name="cog-outline" color={color} size={26} />
+            )
+          }}
+        />
       </Tab.Navigator>
     </NavigationContainer>
   );
