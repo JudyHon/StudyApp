@@ -9,7 +9,7 @@ const ToggleSwitch = ({value, onValueChange, size}) => {
                 activeBackgroundColor: '#81b0ff',
                 inActiveBackgroundColor: '#d0d0d0',
                 height: displaySize,
-                width: displaySize *2.4
+                width: displaySize * 2.4
             }}
             thumbColor="#ffffff"
             value={value}

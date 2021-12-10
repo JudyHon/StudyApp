@@ -17,6 +17,7 @@
     "react": "17.0.2",
     "react-native": "0.66.3",
     "react-native-background-timer": "^2.4.1",
+    "react-native-device-rotation": "^1.0.1",
     "react-native-elements": "^3.4.2",
     "react-native-keep-awake": "^4.0.0",
     "react-native-paper": "^4.10.1",

@@ -1,15 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, Dimensions } from 'react-native';
+import { StyleSheet, Text, View, Dimensions, NativeEventEmitter, NativeModules } from 'react-native';
 import { Card, Button } from 'react-native-elements';
 import DateTimePicker from '@react-native-community/datetimepicker'
 import BackgroundTimer from 'react-native-background-timer';
-import { gyroscope } from 'react-native-sensors';
 import KeepAwake from 'react-native-keep-awake';
-import ToggleSwitch from '../ToggleSwitch';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Modal from '../MyModal';
 import TimerSetting from '../Modals/TimerSetting';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import RNDeviceRotation from 'react-native-device-rotation';
 
 const Homepage = () => {
 
@@ -61,15 +60,27 @@ const Homepage = () => {
         return { formatHours, formatMinutes, formatSeconds }
     }
 
-    // const subscription = gyroscope.subscribe(({x,y,z,timestamp}) =>
-    //     console.log({x,y,z,timestamp})
-    // )
+    const orientationEvent = new NativeEventEmitter(RNDeviceRotation);
+    const subscription =  orientationEvent.addListener('DeviceRotation', event => {
+        const roll = event.roll;
+        // if (roll > 170 && 190 > roll) console.log("flip")
+    })
+    RNDeviceRotation.start();
 
-    useEffect(()=>{
-        console.log("Window Dimension Width:",Dimensions.get('window').width);
+    const { StudyAppModule } = NativeModules;
+    const lightEvent = new NativeEventEmitter(StudyAppModule);
+    const lightSubscription = lightEvent.addListener('LightSensor', event => {
+        console.log(event.light);
+    })
+    StudyAppModule.start();
+
+    useEffect(()=>{        
         return () => {
             console.log("Timer Unmount")
-            // subscription.unsubscribe()
+            if (subscription) subscription.remove();
+            if (lightSubscription) lightSubscription.remove();
+            RNDeviceRotation.stop();
+            StudyAppModule.stop();
         }
     }, [])
 
@@ -132,13 +143,15 @@ const Homepage = () => {
     );
 };
 
+const {width, height} = Dimensions.get('window');
+
 const styles = StyleSheet.create({
     circle: {
         borderWidth:5,
         borderColor: '#2288dd',
-        borderRadius: Math.round(Dimensions.get('window').width + Dimensions.get('window').height)/2,
-        width: Dimensions.get('window').width * 0.6,
-        height: Dimensions.get('window').width * 0.6,
+        borderRadius: (width + height)/2,
+        width: width * 0.6,
+        height: width * 0.6,
         backgroundColor: 'rgba(0,0,0,0)',
         justifyContent: 'center',
         alignItems: 'center',

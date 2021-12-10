@@ -33,27 +33,27 @@ const App = () => {
           }}
         />
         <Tab.Screen 
-        name="Progress" 
-        component={Progress}
-        options={{
+          name="Progress" 
+          component={Progress}
+          options={{
             tabBarIcon: ({color}) => (
               <MaterialCommunityIcons name="check-all" color={color} size={26} />
             )
           }}
-         />
+        />
         <Tab.Screen 
-        name="Community" 
-        component={Community}
-        options={{
+          name="Community" 
+          component={Community}
+          options={{
             tabBarIcon: ({color}) => (
               <MaterialCommunityIcons name="forum" color={color} size={26} />
             )
           }}
-         />
+        />
         <Tab.Screen 
-        name="Setting" 
-        component={Setting}
-        options={{
+          name="Setting" 
+          component={Setting}
+          options={{
             tabBarIcon: ({color}) => (
               <MaterialCommunityIcons name="cog-outline" color={color} size={26} />
             )

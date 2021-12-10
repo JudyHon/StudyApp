@@ -39,7 +39,7 @@ const Setting = () => {
                         }
                     />
                 </ListItem>
-                <ListItem bottomDivider>
+                <ListItem bottomDivider onPress={()=>{}}>
                     <ListItem.Content>
                         <ListItem.Title style={styles.title}>Study Reminder</ListItem.Title>
                         <ListItem.Subtitle style={styles.subtitle}>Set up the reminder for studying</ListItem.Subtitle>

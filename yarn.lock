@@ -5434,6 +5434,11 @@ react-native-codegen@^0.0.7:
     jscodeshift "^0.11.0"
     nullthrows "^1.1.1"
 
+react-native-device-rotation@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/react-native-device-rotation/-/react-native-device-rotation-1.0.1.tgz#ccbd36b32ca33664a3075cf61380a7481c35d11b"
+  integrity sha512-5qF3r7X9S09naEDK+Tu221B0jrHv6bUYJA2wHJo8qtzqcMM468wLjkMSTAwgjE1Qa+Js5q0rPXUgK9/mppSILg==
+
 react-native-elements@^3.4.2:
   version "3.4.2"
   resolved "https://registry.yarnpkg.com/react-native-elements/-/react-native-elements-3.4.2.tgz#66602be9c5e0e0a2a831913adec80ff6518d1ee2"
