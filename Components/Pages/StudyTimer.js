@@ -9,8 +9,13 @@ import Modal from '../MyModal';
 import TimerSetting from '../Modals/TimerSetting';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import RNDeviceRotation from 'react-native-device-rotation';
+import StopWarning from '../Modals/StopWarning';
+import SuccessMessage from '../Modals/SuccessMessage';
+import { openDatabase } from 'react-native-sqlite-storage';
 
-const Homepage = () => {
+var database = openDatabase({ name: 'UserDatabase.db' })
+
+const StudyTimer = () => {
 
     const [date, setDate] = useState(new Date());
     const [show, setShow] = useState(false);
@@ -24,16 +29,18 @@ const Homepage = () => {
         setShow(true);
     }
 
-    const [secondsLeft, setSecondsLeft] = useState(3601);
-    const [timerOn, setTimerOn] = useState(false);
+    const [secondsLeft, setSecondsLeft] = useState(5);
+    const [isTimerOn, setIsTimerOn] = useState(false);
 
     useEffect(()=>{
-        if (timerOn) startTimer()
+        if (isTimerOn) startTimer()
         else BackgroundTimer.stopBackgroundTimer();
         return ()=>{
             BackgroundTimer.stopBackgroundTimer()
         }
-    }, [timerOn])
+    }, [isTimerOn])
+
+    var isFlipped = false;
 
     const startTimer = () => {
         BackgroundTimer.runBackgroundTimer(()=>{
@@ -44,8 +51,29 @@ const Homepage = () => {
         }, 1000)
     }
 
+    const getItem = async () => {
+        const results = await database.executeSql('SELECT rowid as id, value FROM Study_table')
+        results.forEach(result => {
+
+        })
+    }
+
     useEffect(()=>{
-        if (secondsLeft === 0) BackgroundTimer.stopBackgroundTimer()
+        if (isTimerOn && secondsLeft === 0) {
+            BackgroundTimer.stopBackgroundTimer()
+            setSecondsLeft(5);
+            setIsTimerOn(false);
+            setIsSuccessMessageVisible(true);
+            // database.transaction((tx) => {
+            //     tx.executeSql(
+            //         'INSERT INTO Study_Table (year, month, day, study_time) VALUES (?,?,?)',
+            //         [year, month, day, studyTime],
+            //         (tx, results) => {
+            //             console.log('Results', results.rowsAffected);
+            //         }
+            //     )
+            // })
+        }
     }, [secondsLeft])
 
     const formatClock = () => {
@@ -63,7 +91,20 @@ const Homepage = () => {
     const orientationEvent = new NativeEventEmitter(RNDeviceRotation);
     const subscription =  orientationEvent.addListener('DeviceRotation', event => {
         const roll = event.roll;
-        // if (roll > 170 && 190 > roll) console.log("flip")
+        // if (isFlipped) {
+        //     if (!(roll > 170 && 190 > roll)) {
+        //         isFlipped = false;
+        //         setIsTimerOn(false);
+        //         console.log("Stop Timer");
+        //     }
+        // }
+        // else if (roll > 170 && 190 > roll) {
+        //     if (!isTimerOn) {                
+        //         isFlipped = true;
+        //         setIsTimerOn(true);
+        //         console.log("Start Timer")
+        //     }
+        // }
     })
     RNDeviceRotation.start();
 
@@ -97,6 +138,8 @@ const Homepage = () => {
     }, [isTimerSettingVisible])
 
     const [isTimerSettingVisible, setIsTimerSettingVisible] = useState(false);
+    const [isStopWarningVisible, setIsStopWarningVisible] = useState(false);
+    const [isSuccessMessageVisible, setIsSuccessMessageVisible] = useState(false);
 
     return (
         <>
@@ -104,6 +147,17 @@ const Homepage = () => {
             isModalVisible={isTimerSettingVisible}
             setModalVisible={setIsTimerSettingVisible}
             component={ <TimerSetting /> }
+        />
+        <Modal
+            isModalVisible={isStopWarningVisible}
+            setModalVisible={setIsStopWarningVisible}
+            component={ <StopWarning setModalVisible={setIsStopWarningVisible}/> }
+            pressToExit={false}
+        />
+        <Modal
+            isModalVisible={isSuccessMessageVisible}
+            setModalVisible={setIsSuccessMessageVisible}
+            component={ <SuccessMessage setModalVisible={setIsSuccessMessageVisible}/> }
         />
         <View style={{flex:1, paddingBottom: 15}}>
             <Card containerStyle={{flex:1}} wrapperStyle={{flex:1}}>
@@ -124,8 +178,14 @@ const Homepage = () => {
                         </Text>
                     </View>
                     <Button
-                        onPress={() => setTimerOn(timerOn => !timerOn)}
-                        title={timerOn ? "Stop" : "Start"}
+                        onPress={() => {
+                            if (!isTimerOn && secondsLeft == 0) NativeModules.StudyAppModule.showToast("Must be at least 10 seconds");                     
+                            else {                                                   
+                                if (isTimerOn) setIsStopWarningVisible(true);
+                                setIsTimerOn(isTimerOn => !isTimerOn)         
+                            }
+                        }}
+                        title={isTimerOn ? "Stop" : "Start"}
                         buttonStyle={{width: Dimensions.get('window').width*0.6}}
                         titleStyle={{fontSize:25}}
                     />
@@ -159,4 +219,4 @@ const styles = StyleSheet.create({
     }
 });
 
-export default Homepage;
+export default StudyTimer;

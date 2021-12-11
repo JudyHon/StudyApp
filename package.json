@@ -19,12 +19,16 @@
     "react-native-background-timer": "^2.4.1",
     "react-native-device-rotation": "^1.0.1",
     "react-native-elements": "^3.4.2",
+    "react-native-firebase": "^5.6.0",
     "react-native-keep-awake": "^4.0.0",
     "react-native-paper": "^4.10.1",
+    "react-native-push-notification": "^8.1.1",
     "react-native-safe-area-context": "^3.3.2",
     "react-native-sensors": "^7.3.3",
+    "react-native-sqlite-storage": "^6.0.1",
     "react-native-toggle-element": "^1.0.1",
     "react-native-vector-icons": "^9.0.0",
+    "react-native-wheel-picker-android": "^2.0.6",
     "rxjs": "^7.4.0"
   },
   "devDependencies": {

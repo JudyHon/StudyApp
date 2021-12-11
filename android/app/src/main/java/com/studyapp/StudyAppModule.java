@@ -6,6 +6,8 @@ import com.facebook.react.bridge.ReactMethod;
 
 import com.facebook.react.bridge.Callback;
 
+import android.widget.Toast;
+
 public class StudyAppModule extends ReactContextBaseJavaModule {
 
   private final ReactApplicationContext reactContext;
@@ -34,6 +36,14 @@ public class StudyAppModule extends ReactContextBaseJavaModule {
     if (sensorModule != null) {
         sensorModule.stop();
     }
+  }
+
+  @ReactMethod
+  public void showToast(String message) {
+    CharSequence text = message;
+    int duration = Toast.LENGTH_SHORT;
+    Toast toast = Toast.makeText(reactContext, text, duration);
+    toast.show();
   }
 
 }

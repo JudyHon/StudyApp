@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View, Dimensions } from 'react-native';
-import { Card, Button } from 'react-native-elements';
+import { Card, Button, Slider } from 'react-native-elements';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 const Progress = () => {
@@ -11,6 +11,8 @@ const Progress = () => {
 
   const now = new Date();
   const [date, setDate] = useState({year: now.getFullYear(), month: now.getMonth()+1})
+
+  const [value, setValue] = useState(0.5)
 
   return (
     <View style={{flex:1, paddingBottom: 15}}>
@@ -46,9 +48,16 @@ const Progress = () => {
             </View>
             <View style={{flex:1, flexDirection: 'row', flexWrap:'wrap', justifyContent:'center'}}>
               {dateArray.map((_, index)=>{
-                return <Button buttonStyle={{width: width * 0.1145834, height: width * 0.1145834, borderWidth: 1}} key={index.toString()} type="outline" />;
+                return <Button buttonStyle={{width: width * 0.1145834, height: width * 0.1145834, borderWidth: 2, backgroundColor:`rgba(100,175,235,${value})`}} key={index.toString()} type="outline" />;
               })}
             </View>
+            <Text style={{color:'black'}}>Set Your Study Goal:</Text>
+            <Slider
+              value={value}
+              onValueChange={(value)=>setValue(value)}
+              thumbStyle={{height:20,width:20, backgroundColor:'#2288dd'}}
+            />
+            <Text style={{color:'black'}}>{value} Hour(s) Minute(s)</Text>
         </Card>
     </View>
   );

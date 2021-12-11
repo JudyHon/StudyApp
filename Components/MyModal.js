@@ -1,18 +1,19 @@
 import React from 'react';
 import { StyleSheet, View, Modal, TouchableOpacity, TouchableWithoutFeedback } from 'react-native';
 
-const MyModal = ({isModalVisible, setModalVisible, component}) => {
+const MyModal = ({isModalVisible, setModalVisible, component, pressToExit}) => {
+    const isPressToExit = pressToExit == null ? true : pressToExit;
     return (
         <Modal
             visible={ isModalVisible }
-            onRequestClose={() => {setModalVisible(false)}}
+            onRequestClose={() => {}}
             transparent={true}
             animationType='fade'
         >         
             <TouchableOpacity 
                 style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: 'rgba(0,0,0,0.5)'}}
                 activeOpacity={1}
-                onPressOut={() => {setModalVisible(false)}}
+                onPressOut={() => {isPressToExit ? setModalVisible(false) : null}}
             >
                 <TouchableWithoutFeedback>
                     <View style={[styles.modal]}>
