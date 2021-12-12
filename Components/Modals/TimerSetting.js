@@ -13,7 +13,7 @@ const TimerSetting = () => {
             try {
                 const value = await AsyncStorage.getItem('@StudyApp:Awake');
                 if (value) setIsAwake(value == "true" ? true : false);
-            } catch(e) { console.log(e); }
+            } catch {}
         })()
     }, [])
     

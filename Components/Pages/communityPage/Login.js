@@ -37,7 +37,7 @@ const Login = ({navigation}) => {
                             auth()
                                 .signInWithEmailAndPassword(emailAddress, password)
                                 .then(()=>{
-                                    console.log("User created")
+                                    console.log("User Sign In")
                                     navigation.goBack();
                                     
                                 })
@@ -46,10 +46,13 @@ const Login = ({navigation}) => {
                                     if (error.code === 'auth/user-not-found') {
                                         showToast('Email address is not found!');
                                     }
-
                                     if (error.code === 'auth/invalid-email') {
                                         showToast("Invalid email address!")
                                     }
+                                    if (error.code === 'auth/wrong-password') {
+                                        showToast("Invalid password!")
+                                    }
+
                                 })
                         }
                     }}

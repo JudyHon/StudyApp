@@ -28,13 +28,18 @@ const Message = () => {
                             const message = data.message;
                             const date = formatDate(data.date)
                             list.push({username, message, date})
-                            if (size-1 == index) setMessageList(list);
+                            if (size-1 == index) {
+                                setMessageList(list);
+                                setIsLoaded(true);
+                            }
                         })
                 })
                 console.log("New Data")
             })
         return () => subscriber()
     }, [])
+
+    const [isLoaded, setIsLoaded] = useState(false);
 
     const [messageList, setMessageList] = useState([]);
     const [message, setMessage] = useState("");
@@ -50,7 +55,6 @@ const Message = () => {
     }
 
     const renderMessage = ({item}) => {
-        console.log(item)
         return (
             <ListItem bottomDivider containerStyle={{padding:10}}>
                 <ListItem.Content>
@@ -67,6 +71,8 @@ const Message = () => {
     const keyExtractor = (_, index) => index.toString();
 
     return (
+        <>
+        {isLoaded ? 
         <>
         <View style={{flex:1, width:"100%"}}>
             <FlatList
@@ -91,18 +97,22 @@ const Message = () => {
                             .doc(uuid.v4())
                             .set({userID: auth().currentUser.uid, message, date: new Date()})
                             .then(()=>{
-                                console.log("Database created")
+                                console.log("Data created")
                             })
                         setMessage("")
                         Keyboard.dismiss()
                     }
-                    else {                                    
-                        console.log(messageList)
+                    else {                        
                         showToast("Message cannot be empty!")
                     }
                 }}
             />
         </View>
+        </> :
+        <>
+            <Text style={{fontSize:25, color:'black'}}>Loading...</Text>
+        </>
+        }
         </>
     );
 };

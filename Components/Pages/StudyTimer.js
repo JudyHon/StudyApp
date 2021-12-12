@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, Dimensions, NativeEventEmitter, NativeModules } from 'react-native';
+import { StyleSheet, Text, View, Dimensions, NativeEventEmitter, NativeModules, TouchableOpacity } from 'react-native';
 import { Card, Button } from 'react-native-elements';
 import DateTimePicker from '@react-native-community/datetimepicker'
 import BackgroundTimer from 'react-native-background-timer';
@@ -12,6 +12,7 @@ import RNDeviceRotation from 'react-native-device-rotation';
 import StopWarning from '../Modals/StopWarning';
 import SuccessMessage from '../Modals/SuccessMessage';
 import { openDatabase } from 'react-native-sqlite-storage';
+import SelectTime from '../Modals/SelectTime';
 
 var database = openDatabase({ name: 'UserDatabase.db' })
 
@@ -31,6 +32,15 @@ const StudyTimer = () => {
 
     const [secondsLeft, setSecondsLeft] = useState(5);
     const [isTimerOn, setIsTimerOn] = useState(false);
+
+    useEffect(()=>{
+        (async function getData() {
+            try {
+                const value = await AsyncStorage.getItem('@StudyApp:secondsLeft');
+                if (value) setSecondsLeft(parseInt(value));
+            } catch {}
+        })()
+    }, [])
 
     useEffect(()=>{
         if (isTimerOn) startTimer()
@@ -61,8 +71,13 @@ const StudyTimer = () => {
     useEffect(()=>{
         if (isTimerOn && secondsLeft === 0) {
             BackgroundTimer.stopBackgroundTimer()
-            setSecondsLeft(5);
             setIsTimerOn(false);
+            (async function getData() {
+                try {
+                    const value = await AsyncStorage.getItem('@StudyApp:secondsLeft');
+                    if (value) setSecondsLeft(parseInt(value));
+                } catch {}
+            })()
             setIsSuccessMessageVisible(true);
             // database.transaction((tx) => {
             //     tx.executeSql(
@@ -140,7 +155,8 @@ const StudyTimer = () => {
     const [isTimerSettingVisible, setIsTimerSettingVisible] = useState(false);
     const [isStopWarningVisible, setIsStopWarningVisible] = useState(false);
     const [isSuccessMessageVisible, setIsSuccessMessageVisible] = useState(false);
-
+    const [isSelectTimeVisible, setIsSelectTimeVisible] = useState(false);
+    
     return (
         <>
         <Modal
@@ -159,6 +175,11 @@ const StudyTimer = () => {
             setModalVisible={setIsSuccessMessageVisible}
             component={ <SuccessMessage setModalVisible={setIsSuccessMessageVisible}/> }
         />
+        <Modal
+            isModalVisible={isSelectTimeVisible}
+            setModalVisible={setIsSelectTimeVisible}
+            component={ <SelectTime setModalVisible={setIsSelectTimeVisible} setSecondsLeft={setSecondsLeft}/> }
+        />
         <View style={{flex:1, paddingBottom: 15}}>
             <Card containerStyle={{flex:1}} wrapperStyle={{flex:1}}>
                 <Card.Title style={{fontSize:30}}>Study Timer</Card.Title>
@@ -171,19 +192,19 @@ const StudyTimer = () => {
                         style={{right:0, top:0, position:'absolute'}}
                         onPress={()=>{setIsTimerSettingVisible(true)}}
                     />
-                    <View style={styles.circle}>
-                        <Text style={{color:'black', fontSize:35}}>
-                            {formatClock().formatHours} : {formatClock().formatMinutes} :{" "}
-                            {formatClock().formatSeconds}
-                        </Text>
-                    </View>
+                    
+                    <TouchableOpacity onPress={()=>{setIsSelectTimeVisible(true)}} disabled={isTimerOn}>
+                        <View style={styles.circle}>
+                                <Text style={{color:'black', fontSize:35}}>
+                                    {formatClock().formatHours} : {formatClock().formatMinutes} :{" "}
+                                    {formatClock().formatSeconds}
+                                </Text>
+                        </View>                    
+                    </TouchableOpacity>
                     <Button
-                        onPress={() => {
-                            if (!isTimerOn && secondsLeft == 0) NativeModules.StudyAppModule.showToast("Must be at least 10 seconds");                     
-                            else {                                                   
-                                if (isTimerOn) setIsStopWarningVisible(true);
-                                setIsTimerOn(isTimerOn => !isTimerOn)         
-                            }
+                        onPress={() => {                                          
+                            if (isTimerOn) setIsStopWarningVisible(true);
+                            setIsTimerOn(isTimerOn => !isTimerOn)
                         }}
                         title={isTimerOn ? "Stop" : "Start"}
                         buttonStyle={{width: Dimensions.get('window').width*0.6}}
@@ -215,7 +236,7 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(0,0,0,0)',
         justifyContent: 'center',
         alignItems: 'center',
-        marginBottom: 30
+        margin:30
     }
 });
 

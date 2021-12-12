@@ -1,13 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
-import { Card, Button } from 'react-native-elements';
-import auth from '@react-native-firebase/auth';
-import Message from './communityPage/Message';
+import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import MainPage from './communityPage/MainPage';
-import Signup from './communityPage/Signup';
-import Login from './communityPage/Login';
-import { NavigationContainer } from '@react-navigation/native';
+import { MainPage, Signup, Login } from './communityPage';
 
 const Stack = createNativeStackNavigator();
 
@@ -24,9 +17,5 @@ const Community = () => {
     </Stack.Navigator>
   )
 };
-
-const styles = StyleSheet.create({
-
-});
 
 export default Community;

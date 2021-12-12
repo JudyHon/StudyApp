@@ -5,14 +5,13 @@ import ToggleSwitch from '../ToggleSwitch';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import auth from '@react-native-firebase/auth';
 
-const Setting = () => {
+const Setting = ({navigation}) => {
 
     const [initializing, setInitializing] = useState(true);
     const [user, setUser] = useState();
   
     const onAuthStateChanged = (user) => {
         setUser(user);
-        console.log(user)
         if (initializing) setInitializing(false)
     }
 
@@ -28,10 +27,7 @@ const Setting = () => {
             try {
                 const value = await AsyncStorage.getItem('@StudyApp:Notification');
                 if (value) setIsNotiOn(value == "true" ? true : false);
-
-            } catch(e) {
-                console.log(e);
-            }
+            } catch {}
         })()
     }, [])
 
@@ -50,7 +46,7 @@ const Setting = () => {
                     </ListItem.Content>
                     <ListItem.Chevron />
                 </ListItem> :
-                <ListItem bottomDivider onPress={()=>{}}>
+                <ListItem bottomDivider onPress={()=>{navigation.navigate("Community")}}>
                     <ListItem.Content>
                         <ListItem.Title style={styles.title}>Sign Up/Login</ListItem.Title>
                         <ListItem.Subtitle style={styles.subtitle}>Log in to access the community</ListItem.Subtitle>

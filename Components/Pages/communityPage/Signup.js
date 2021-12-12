@@ -57,7 +57,7 @@ const Signup = ({navigation}) => {
                                 firestore().collection("Users").doc(auth().currentUser.uid)
                                 .set({username})
                                 .then(()=>{
-                                    console.log("Database created")
+                                    console.log("Data created")
                                 })
                                 console.log("User created")
                                 navigation.goBack()
