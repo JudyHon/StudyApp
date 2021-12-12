@@ -9,8 +9,10 @@ import { StyleSheet, LogBox } from 'react-native';
 import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { StudyTimer, Progress, Community, Setting } from './Components/Pages';
+import Signup from './Components/Pages/communityPage/Signup';
 
 import { NavigationContainer } from '@react-navigation/native';
+import Message from './Components/Pages/communityPage/Message';
 
 const Tab = createMaterialBottomTabNavigator();
 
@@ -20,7 +22,7 @@ const App = () => {
 
   return (
     <NavigationContainer>
-      <Tab.Navigator >
+      <Tab.Navigator>
         <Tab.Screen 
           name="Timer" 
           component={StudyTimer} 

@@ -1,31 +1,28 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Card, Button } from 'react-native-elements';
+import auth from '@react-native-firebase/auth';
+import Message from './communityPage/Message';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import MainPage from './communityPage/MainPage';
+import Signup from './communityPage/Signup';
+import Login from './communityPage/Login';
+import { NavigationContainer } from '@react-navigation/native';
+
+const Stack = createNativeStackNavigator();
 
 const Community = () => {
-
   return (
-    <View style={{flex:1, paddingBottom: 15}}>
-        <Card containerStyle={{flex:1}} wrapperStyle={{flex:1}}>
-            <Card.Title style={{fontSize:30}}>Community</Card.Title>
-            <Card.Divider/>
-            <View style={{flex:1, justifyContent:'center', alignItems:'center'}}>
-                <Text style={{color:'black', fontSize: 20}}>Login/Sign up {"\n"}to access the community</Text>
-                <View style={{flexDirection:'row-reverse', }}>
-                  <Button
-                    title="Login"
-                    buttonStyle={{margin:10}}
-                  />
-                  <Button
-                    title="Sign Up"
-                    buttonStyle={{margin:10}}
-                  />
-                </View>
-                
-            </View>
-        </Card>
-    </View>
-  );
+    <Stack.Navigator    
+      screenOptions={{
+        headerShown:false
+      }}
+    >
+      <Stack.Screen name="MainPage" component={MainPage} />
+      <Stack.Screen name="Signup" component={Signup}/>
+      <Stack.Screen name="Login" component={Login}/>
+    </Stack.Navigator>
+  )
 };
 
 const styles = StyleSheet.create({

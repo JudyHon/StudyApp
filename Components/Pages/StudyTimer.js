@@ -111,7 +111,7 @@ const StudyTimer = () => {
     const { StudyAppModule } = NativeModules;
     const lightEvent = new NativeEventEmitter(StudyAppModule);
     const lightSubscription = lightEvent.addListener('LightSensor', event => {
-        console.log(event.light);
+        // console.log(event.light);
     })
     StudyAppModule.start();
 
