@@ -73,6 +73,9 @@ const Signup = ({navigation}) => {
                                 if (error.code === 'auth/weak-password') {
                                     showToast("Password should be at least 6 characters!")
                                 }
+                                if (error.code === 'auth/network-request-failed') {
+                                    showToast("No network connection!")
+                                }
                                 console.log(error)
                             })
                         }

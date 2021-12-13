@@ -52,7 +52,9 @@ const Login = ({navigation}) => {
                                     if (error.code === 'auth/wrong-password') {
                                         showToast("Invalid password!")
                                     }
-
+                                    if (error.code === 'auth/network-request-failed') {
+                                        showToast("No network connection!")
+                                    }
                                 })
                         }
                     }}

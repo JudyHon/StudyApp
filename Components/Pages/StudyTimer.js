@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, Dimensions, NativeEventEmitter, NativeModules, TouchableOpacity } from 'react-native';
 import { Card, Button } from 'react-native-elements';
-import DateTimePicker from '@react-native-community/datetimepicker'
 import BackgroundTimer from 'react-native-background-timer';
 import KeepAwake from 'react-native-keep-awake';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -11,23 +10,74 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import RNDeviceRotation from 'react-native-device-rotation';
 import StopWarning from '../Modals/StopWarning';
 import SuccessMessage from '../Modals/SuccessMessage';
-import { openDatabase } from 'react-native-sqlite-storage';
 import SelectTime from '../Modals/SelectTime';
-
-var database = openDatabase({ name: 'UserDatabase.db' })
+import firestore from '@react-native-firebase/firestore'
+import auth from '@react-native-firebase/auth'
+import uuid from 'react-native-uuid';
 
 const StudyTimer = () => {
 
-    const [date, setDate] = useState(new Date());
-    const [show, setShow] = useState(false);
-
-    const onChange = (event, selectedDate) => {
-        const currentDate = selectedDate || date;
-        setDate(currentDate);
+    const [initializing, setInitializing] = useState(true);
+    const [user, setUser] = useState();
+  
+    const onAuthStateChanged = (user) => {
+        setUser(user);
+        if (initializing) setInitializing(false)
     }
 
-    const showTimePicker=()=>{
-        setShow(true);
+    useEffect(() => {
+        const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
+        return subscriber;
+    }, [])
+
+    const saveDataToFirebaseHelper = async (isGivenUp, userCollection, uid, date) => {
+        var isExist = false;
+        var studyTime = parseInt(await AsyncStorage.getItem('@StudyApp:secondsLeft'));
+        var hasGivenUp = false;
+        await firestore().collection(userCollection).doc(uid).collection("StudyRecords").doc(date).get()
+        .then(documentSnapshot=>{
+            if (documentSnapshot.exists) {
+                isExist = true;
+                if (!isGivenUp) studyTime += documentSnapshot.data().studyTime
+                else studyTime = documentSnapshot.data().studyTime;                
+                if (documentSnapshot.data().hasGivenUp) hasGivenUp = true;
+            }
+        })
+        if (isExist) {
+            await firestore()
+            .collection(userCollection)
+            .doc(uid)
+            .collection("StudyRecords")
+            .doc(date)
+            .update({
+                studyTime,
+                hasGivenUp
+            })
+        } else {
+            await firestore()
+            .collection(userCollection)
+            .doc(uid)
+            .collection("StudyRecords")
+            .doc(date)
+            .set({
+                studyTime,
+                hasGivenUp,
+                date
+            })
+        }
+    }
+
+    const saveDataToFirebase = async(isGivenUp) => {
+        var uid = await AsyncStorage.getItem('@StudyApp:anonymousUid');
+        if (!uid) {
+            uid = uuid.v4();
+            await AsyncStorage.setItem('@StudyApp:anonymousUid', uid);
+        }
+        const date = new Date().toISOString();
+        const newDate = date.split('T')[0];
+        const hasGivenUp = isGivenUp ? true : false;
+        saveDataToFirebaseHelper(hasGivenUp, 'Anonymous', uid, newDate) 
+        if (user) saveDataToFirebaseHelper(hasGivenUp, 'Users', user.uid, newDate)       
     }
 
     const [secondsLeft, setSecondsLeft] = useState(5);
@@ -38,6 +88,10 @@ const StudyTimer = () => {
             try {
                 const value = await AsyncStorage.getItem('@StudyApp:secondsLeft');
                 if (value) setSecondsLeft(parseInt(value));
+                else {
+                    await AsyncStorage.setItem('@StudyApp:secondsLeft', (25 * 60).toString())
+                    setSecondsLeft(25*60);
+                }
             } catch {}
         })()
     }, [])
@@ -61,13 +115,6 @@ const StudyTimer = () => {
         }, 1000)
     }
 
-    const getItem = async () => {
-        const results = await database.executeSql('SELECT rowid as id, value FROM Study_table')
-        results.forEach(result => {
-
-        })
-    }
-
     useEffect(()=>{
         if (isTimerOn && secondsLeft === 0) {
             BackgroundTimer.stopBackgroundTimer()
@@ -79,15 +126,7 @@ const StudyTimer = () => {
                 } catch {}
             })()
             setIsSuccessMessageVisible(true);
-            // database.transaction((tx) => {
-            //     tx.executeSql(
-            //         'INSERT INTO Study_Table (year, month, day, study_time) VALUES (?,?,?)',
-            //         [year, month, day, studyTime],
-            //         (tx, results) => {
-            //             console.log('Results', results.rowsAffected);
-            //         }
-            //     )
-            // })
+            saveDataToFirebase(false);
         }
     }, [secondsLeft])
 
@@ -157,6 +196,8 @@ const StudyTimer = () => {
     const [isSuccessMessageVisible, setIsSuccessMessageVisible] = useState(false);
     const [isSelectTimeVisible, setIsSelectTimeVisible] = useState(false);
     
+    const [buttonDisable, setButtonDisable] = useState(false);
+
     return (
         <>
         <Modal
@@ -167,7 +208,15 @@ const StudyTimer = () => {
         <Modal
             isModalVisible={isStopWarningVisible}
             setModalVisible={setIsStopWarningVisible}
-            component={ <StopWarning setModalVisible={setIsStopWarningVisible}/> }
+            component={ 
+                <StopWarning 
+                    setModalVisible={setIsStopWarningVisible}
+                    setButtonDisable={setButtonDisable}
+                    saveData={saveDataToFirebase}
+                    setTimerOn={setIsTimerOn}
+                    setSecondsLeft={setSecondsLeft}
+                />
+            }
             pressToExit={false}
         />
         <Modal
@@ -202,8 +251,14 @@ const StudyTimer = () => {
                         </View>                    
                     </TouchableOpacity>
                     <Button
-                        onPress={() => {                                          
-                            if (isTimerOn) setIsStopWarningVisible(true);
+                        disabled={buttonDisable}
+                        disabledStyle={{backgroundColor:"#2288dd"}}
+                        disabledTitleStyle={{color:"#ffffff"}}
+                        onPress={() => {                                      
+                            if (isTimerOn) {                                            
+                                setButtonDisable(true);       
+                                setIsStopWarningVisible(true);
+                            }                            
                             setIsTimerOn(isTimerOn => !isTimerOn)
                         }}
                         title={isTimerOn ? "Stop" : "Start"}
@@ -212,13 +267,6 @@ const StudyTimer = () => {
                     />
                 </View>
             </Card>
-            {show && (
-                <DateTimePicker
-                    value={date}
-                    mode="time"
-                    onChange={onChange}
-                />
-            )}
         </View>
         </>
     );

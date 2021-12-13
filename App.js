@@ -5,7 +5,7 @@
  */
 
 import React from 'react';
-import { StyleSheet, LogBox } from 'react-native';
+import { LogBox } from 'react-native';
 import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { StudyTimer, Progress, Community, Setting } from './Components/Pages';
