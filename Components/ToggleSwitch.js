@@ -1,6 +1,13 @@
+/**
+ * COMP4521
+ * HON, Tsz Ching 20608119 tchonaa@connect.ust.hk 
+ * 
+ */
+
 import React from 'react';
 import Toggle from 'react-native-toggle-element';
 
+// A toggle switch component
 const ToggleSwitch = ({value, onValueChange, size}) => {
     const displaySize = size ? size : 25;
     return (

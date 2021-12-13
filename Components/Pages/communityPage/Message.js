@@ -1,3 +1,9 @@
+/**
+ * COMP4521
+ * HON, Tsz Ching 20608119 tchonaa@connect.ust.hk 
+ * 
+ */
+
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, FlatList, NativeModules, Keyboard } from 'react-native';
 import { Card, Button, Input, ListItem } from 'react-native-elements';

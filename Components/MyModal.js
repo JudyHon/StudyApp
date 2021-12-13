@@ -1,6 +1,13 @@
+/**
+ * COMP4521
+ * HON, Tsz Ching 20608119 tchonaa@connect.ust.hk 
+ * 
+ */
+
 import React from 'react';
 import { StyleSheet, View, Modal, TouchableOpacity, TouchableWithoutFeedback } from 'react-native';
 
+// A modal component
 const MyModal = ({isModalVisible, setModalVisible, component, pressToExit}) => {
     const isPressToExit = pressToExit == null ? true : pressToExit;
     return (

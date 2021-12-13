@@ -1,4 +1,10 @@
-import React, { useState, useEffect } from 'react';
+/**
+ * COMP4521
+ * HON, Tsz Ching 20608119 tchonaa@connect.ust.hk 
+ * 
+ */
+
+import React, { useState } from 'react';
 import { NativeModules, StyleSheet, Text, View } from 'react-native';
 import { Button, Divider, Input } from 'react-native-elements';
 import AsyncStorage from '@react-native-async-storage/async-storage';

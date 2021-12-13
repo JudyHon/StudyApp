@@ -1,3 +1,9 @@
+/**
+ * COMP4521
+ * HON, Tsz Ching 20608119 tchonaa@connect.ust.hk 
+ * 
+ */
+
 import React, { useState, useEffect } from "react";
 import { View, Text } from "react-native";
 import { ListItem, Divider } from "react-native-elements";

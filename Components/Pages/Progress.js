@@ -1,3 +1,9 @@
+/**
+ * COMP4521
+ * HON, Tsz Ching 20608119 tchonaa@connect.ust.hk 
+ * 
+ */
+
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View, Dimensions } from 'react-native';
 import { Card, Button, Slider } from 'react-native-elements';
@@ -63,7 +69,6 @@ const Progress = () => {
 
   const updateList = async() => {
     const {year,month} = date;
-    const newDate = new Date(`${year}-${month<10?"0"+month:month}-01`)
     const startDate =  new Date(year, 0, 2).toISOString().split('T')[0]
     const endDate = new Date(year, 12, 1).toISOString().split('T')[0]
     const uid = await AsyncStorage.getItem('@StudyApp:anonymousUid')

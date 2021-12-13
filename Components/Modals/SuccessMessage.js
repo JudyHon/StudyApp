@@ -1,3 +1,9 @@
+/**
+ * COMP4521
+ * HON, Tsz Ching 20608119 tchonaa@connect.ust.hk 
+ * 
+ */
+
 import React from "react";
 import { View, Text } from "react-native";
 import { Button, Divider } from "react-native-elements";

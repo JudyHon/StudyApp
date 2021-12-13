@@ -1,3 +1,9 @@
+/**
+ * COMP4521
+ * HON, Tsz Ching 20608119 tchonaa@connect.ust.hk 
+ * 
+ */
+
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, Dimensions, NativeEventEmitter, NativeModules, TouchableOpacity } from 'react-native';
 import { Card, Button } from 'react-native-elements';
@@ -14,6 +20,8 @@ import uuid from 'react-native-uuid';
 
 const StudyTimer = () => {
 
+    // === Firebase ===
+    // Check Current User with Firebase Authentication
     const [initializing, setInitializing] = useState(true);
     const [user, setUser] = useState();
   
@@ -40,6 +48,8 @@ const StudyTimer = () => {
                 if (documentSnapshot.data().hasGivenUp) hasGivenUp = true;
             }
         })
+
+        // If records does not exist, create one. Otherwise, update records.
         if (isExist) {
             await firestore()
             .collection(userCollection)
@@ -64,6 +74,7 @@ const StudyTimer = () => {
         }
     }
 
+    // Save the data to firestore in both user and anonymous form
     const saveDataToFirebase = async(isGivenUp) => {
         var uid = await AsyncStorage.getItem('@StudyApp:anonymousUid');
         if (!uid) {
@@ -77,6 +88,8 @@ const StudyTimer = () => {
         if (user) saveDataToFirebaseHelper(hasGivenUp, 'Users', user.uid, newDate)       
     }
 
+
+    // === Timer ===
     const [secondsLeft, setSecondsLeft] = useState(5);
     const [isTimerOn, setIsTimerOn] = useState(false);
 

@@ -1,5 +1,11 @@
+/**
+ * COMP4521
+ * HON, Tsz Ching 20608119 tchonaa@connect.ust.hk 
+ * 
+ */
+
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, NativeModules } from 'react-native';
+import { View, NativeModules } from 'react-native';
 import { Card, Button, Input } from 'react-native-elements';
 import auth from '@react-native-firebase/auth';
 
