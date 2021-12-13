@@ -5,12 +5,9 @@ import BackgroundTimer from 'react-native-background-timer';
 import KeepAwake from 'react-native-keep-awake';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Modal from '../MyModal';
-import TimerSetting from '../Modals/TimerSetting';
+import {TimerSetting, StopWarning, SuccessMessage, SelectTime} from '../Modals';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import RNDeviceRotation from 'react-native-device-rotation';
-import StopWarning from '../Modals/StopWarning';
-import SuccessMessage from '../Modals/SuccessMessage';
-import SelectTime from '../Modals/SelectTime';
 import firestore from '@react-native-firebase/firestore'
 import auth from '@react-native-firebase/auth'
 import uuid from 'react-native-uuid';
@@ -60,8 +57,8 @@ const StudyTimer = () => {
             .collection("StudyRecords")
             .doc(date)
             .set({
-                studyTime,
-                hasGivenUp,
+                studyTime: isGivenUp ? 0 : studyTime,
+                hasGivenUp:isGivenUp,
                 date
             })
         }
@@ -170,6 +167,7 @@ const StudyTimer = () => {
     StudyAppModule.start();
 
     useEffect(()=>{        
+        console.log(Dimensions.get('window').width)
         return () => {
             console.log("Timer Unmount")
             if (subscription) subscription.remove();
@@ -244,7 +242,7 @@ const StudyTimer = () => {
                     
                     <TouchableOpacity onPress={()=>{setIsSelectTimeVisible(true)}} disabled={isTimerOn}>
                         <View style={styles.circle}>
-                                <Text style={{color:'black', fontSize:35}}>
+                                <Text style={styles.timeFont}>
                                     {formatClock().formatHours} : {formatClock().formatMinutes} :{" "}
                                     {formatClock().formatSeconds}
                                 </Text>
@@ -285,6 +283,10 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         margin:30
+    },
+    timeFont: {
+        color: 'black',
+        fontSize: width * 0.09        
     }
 });
 
