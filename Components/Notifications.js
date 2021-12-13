@@ -1,5 +1,10 @@
+/**
+ * COMP4521 Group 25
+ * HON, Tsz Ching 20608119 tchonaa@connect.ust.hk 
+ * 
+ */
+
 import PushNotification from 'react-native-push-notification';
-import { repeat } from 'rxjs';
 
 class Notifications {
     constructor() {

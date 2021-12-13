@@ -1,5 +1,5 @@
 /**
- * COMP4521
+ * COMP4521 Group 25
  * HON, Tsz Ching 20608119 tchonaa@connect.ust.hk 
  * 
  */

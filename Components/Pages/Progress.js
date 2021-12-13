@@ -1,5 +1,5 @@
 /**
- * COMP4521
+ * COMP4521 Group 25
  * HON, Tsz Ching 20608119 tchonaa@connect.ust.hk 
  * 
  */
@@ -203,7 +203,7 @@ const Progress = () => {
                   setDate({year, month});
                 }}
               />
-              <Text style={{color:'black', alignSelf:'center', fontSize:20}}>{date.year}-{date.month}</Text>
+              <Text style={{color:'black', alignSelf:'center', fontSize:20}}>{date.year}-{date.month<10?`0${date.month}`:date.month}</Text>
               <MaterialCommunityIcons 
                 name="chevron-right"
                 color="grey"
