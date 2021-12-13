@@ -10,6 +10,7 @@ import { Card, ListItem } from 'react-native-elements';
 import ToggleSwitch from '../ToggleSwitch';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import auth from '@react-native-firebase/auth';
+import Notifications from '../Notifications';
 
 const Setting = ({navigation}) => {
 
@@ -26,7 +27,7 @@ const Setting = ({navigation}) => {
         return subscriber;
     }, [])
     
-    const [isNotiOn, setIsNotiOn] = useState(false);
+    const [isNotiOn, setIsNotiOn] = useState(true);
 
     useEffect(()=>{
         (async function getData() {
@@ -71,7 +72,12 @@ const Setting = ({navigation}) => {
                         onValueChange={
                             async(value)=>{
                                 setIsNotiOn(value);
-                                await AsyncStorage.setItem('@StudyApp:Notification', value.toString());                            
+                                await AsyncStorage.setItem('@StudyApp:Notification', value.toString());     
+                                if(value) {
+                                    Notifications.scheduleNotification();
+                                } else {
+                                    Notifications.deleteNotification();
+                                }                 
                             }
                         }
                     />

@@ -4,18 +4,32 @@
  * 
  */
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { LogBox } from 'react-native';
 import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { StudyTimer, Progress, Community, Setting } from './Components/Pages';
 import { NavigationContainer } from '@react-navigation/native';
+import Notifications from './Components/Notifications';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Tab = createMaterialBottomTabNavigator();
 
 LogBox.ignoreLogs(["`new NativeEventEmitter()` was called with"])
 
 const App = () => {
+
+  useEffect(()=>{
+    (async function getData() {
+      try {
+          const value = await AsyncStorage.getItem('@StudyApp:isSetNotification');
+          if (!value) {
+            Notifications.scheduleNotification();
+            await AsyncStorage.setItem('@StudyApp:isSetNotification', "true")
+          }
+      } catch {}
+    })()
+  }, [])
 
   return (
     <NavigationContainer>
