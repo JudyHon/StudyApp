@@ -223,8 +223,8 @@ const Progress = () => {
                 showData ? 
                 <>
                   <Text style={styles.titleFont}>{showData.date}</Text>
-                  <Text style={[styles.titleFont, {marginBottom: 5}]}>Study Time</Text>
-                  <Text style={styles.font}>
+                  <Text style={[styles.titleFont, {marginTop: 0, marginBottom: 5}]}>Study Time</Text>
+                  <Text style={[styles.font, {marginLeft: 10}]}>
                     {formatTime(showData.studyTime).formatHours} Hour(s){" "}
                     {formatTime(showData.studyTime).formatMinutes} Minute(s){" "}
                     {formatTime(showData.studyTime).formatSeconds} Second(s)
@@ -261,7 +261,8 @@ const styles = StyleSheet.create({
   },
   font:{
     fontSize: 18,
-    color:'black'
+    color:'black',
+    alignSelf:'flex-start'
   },
   titleFont:{
     margin:10,

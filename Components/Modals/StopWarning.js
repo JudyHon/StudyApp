@@ -9,13 +9,13 @@ import { View, Text } from "react-native";
 import { Button, Divider } from "react-native-elements";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const StopWarning = ({setModalVisible, setButtonDisable, saveData, setTimerOn, setSecondsLeft}) => {
+const StopWarning = ({setModalVisible, setButtonDisable, saveData, setTimerOn, setSecondsLeft, setTimerOff}) => {
 
     return (    
         <View style={{width:280, padding:10, justifyContent:'center', alignItems:'center'}}>
             <Text style={{fontSize: 20, margin:5, fontWeight:'bold', color:'black'}}>Stop the Timer</Text>
             <Divider color='#555555' style={{width:"80%"}} />
-            <Text style={{fontSize: 20, color:'black', margin:10}}>Are you giving the study up?</Text>
+            <Text style={{fontSize: 18, color:'black', margin:10}}>Are you giving up?</Text>
             <View style={{flexDirection:'row-reverse'}}>
                 <Button
                     title='Yes'
@@ -24,6 +24,7 @@ const StopWarning = ({setModalVisible, setButtonDisable, saveData, setTimerOn, s
                         await saveData(true);                        
                         setSecondsLeft(parseInt(await AsyncStorage.getItem('@StudyApp:secondsLeft')));
                         setButtonDisable(false);
+                        setTimerOff();
                         setModalVisible(false);
                     }}
                 />

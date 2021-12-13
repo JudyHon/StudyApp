@@ -11,12 +11,18 @@ import BackgroundTimer from 'react-native-background-timer';
 import KeepAwake from 'react-native-keep-awake';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Modal from '../MyModal';
-import {TimerSetting, StopWarning, SuccessMessage, SelectTime} from '../Modals';
+import { TimerSetting, StopWarning, SuccessMessage, SelectTime, FlipWarning } from '../Modals';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import RNDeviceRotation from 'react-native-device-rotation';
 import firestore from '@react-native-firebase/firestore'
 import auth from '@react-native-firebase/auth'
 import uuid from 'react-native-uuid';
+
+
+var isTimerStart = false;
+var isFlippedStudyMode = false;
+var isEnded = false;
+var isLight = false;
 
 const StudyTimer = () => {
 
@@ -38,7 +44,7 @@ const StudyTimer = () => {
     const saveDataToFirebaseHelper = async (isGivenUp, userCollection, uid, date) => {
         var isExist = false;
         var studyTime = parseInt(await AsyncStorage.getItem('@StudyApp:secondsLeft'));
-        var hasGivenUp = false;
+        var hasGivenUp = isGivenUp;
         await firestore().collection(userCollection).doc(uid).collection("StudyRecords").doc(date).get()
         .then(documentSnapshot=>{
             if (documentSnapshot.exists) {
@@ -49,6 +55,8 @@ const StudyTimer = () => {
             }
         })
 
+        console.log("SAVE DATA")
+        console.log(isExist)
         // If records does not exist, create one. Otherwise, update records.
         if (isExist) {
             await firestore()
@@ -81,11 +89,14 @@ const StudyTimer = () => {
             uid = uuid.v4();
             await AsyncStorage.setItem('@StudyApp:anonymousUid', uid);
         }
-        const date = new Date().toISOString();
-        const newDate = date.split('T')[0];
-        const hasGivenUp = isGivenUp ? true : false;
+
+        const tzoffset = (new Date()).getTimezoneOffset() * 60000;
+        const newDate = (new Date(Date.now() - tzoffset)).toISOString().slice(0, -1).split('T')[0];
+
+        const hasGivenUp = isGivenUp ? true : false;          
+        console.log("Save the Data to firestore", hasGivenUp)    
         saveDataToFirebaseHelper(hasGivenUp, 'Anonymous', uid, newDate) 
-        if (user) saveDataToFirebaseHelper(hasGivenUp, 'Users', user.uid, newDate)       
+        if (user) saveDataToFirebaseHelper(hasGivenUp, 'Users', user.uid, newDate) 
     }
 
 
@@ -93,6 +104,7 @@ const StudyTimer = () => {
     const [secondsLeft, setSecondsLeft] = useState(5);
     const [isTimerOn, setIsTimerOn] = useState(false);
 
+    // Retrieve the previous setting
     useEffect(()=>{
         (async function getData() {
             try {
@@ -106,6 +118,7 @@ const StudyTimer = () => {
         })()
     }, [])
 
+    // Enable the backgroundTimer
     useEffect(()=>{
         if (isTimerOn) startTimer()
         else BackgroundTimer.stopBackgroundTimer();
@@ -113,8 +126,6 @@ const StudyTimer = () => {
             BackgroundTimer.stopBackgroundTimer()
         }
     }, [isTimerOn])
-
-    var isFlipped = false;
 
     const startTimer = () => {
         BackgroundTimer.runBackgroundTimer(()=>{
@@ -125,10 +136,13 @@ const StudyTimer = () => {
         }, 1000)
     }
 
+    // When the timer ends (secondsLeft is 0)
     useEffect(()=>{
         if (isTimerOn && secondsLeft === 0) {
             BackgroundTimer.stopBackgroundTimer()
             setIsTimerOn(false);
+            isTimerStart = false;
+            if (isFlippedStudyMode) isEnded = true;
             (async function getData() {
                 try {
                     const value = await AsyncStorage.getItem('@StudyApp:secondsLeft');
@@ -152,35 +166,61 @@ const StudyTimer = () => {
         return { formatHours, formatMinutes, formatSeconds }
     }
 
+    const setTimerOff = () => {
+        isFlippedStudyMode = false;
+        isTimerStart = false;
+        setIsTimerOn(false);
+    }
+
+    // --- Sensors ---
     const orientationEvent = new NativeEventEmitter(RNDeviceRotation);
     const subscription =  orientationEvent.addListener('DeviceRotation', event => {
-        const roll = event.roll;
-        // if (isFlipped) {
-        //     if (!(roll > 170 && 190 > roll)) {
-        //         isFlipped = false;
-        //         setIsTimerOn(false);
-        //         console.log("Stop Timer");
-        //     }
-        // }
-        // else if (roll > 170 && 190 > roll) {
-        //     if (!isTimerOn) {                
-        //         isFlipped = true;
-        //         setIsTimerOn(true);
-        //         console.log("Start Timer")
-        //     }
-        // }
+        const {roll} = event
+        if (!isFlippedStudyMode && isTimerStart) return; // Do nothing when manually start timer
+        if (isFlippedStudyMode) {
+            if (!(roll > 170 && 190 > roll)) {
+                if (isTimerStart) {
+                    // Stop Timer
+                    isTimerStart = false;
+                    setIsTimerOn(false);
+                    setIsFlipWarningVisible(true);
+                    console.log("StopTimer")
+                } else {
+                    if (isEnded) {
+                        // Timer is ended
+                        isFlippedStudyMode = false;
+                        isEnded = false;
+                    }
+                }
+            } else if (!isTimerStart && !isEnded) {
+                // Continue Timer
+                setIsTimerOn(true)
+                setIsFlipWarningVisible(false);
+                isTimerStart = true;
+                console.log("ContinueTimer")                
+            }
+        } else if (roll > 170 && 190 > roll) {
+            if (isLight && !isEnded) {
+                // Start Timer
+                setIsTimerOn(true)
+                isFlippedStudyMode = true;
+                isTimerStart = true;
+                console.log("StartTimer")
+            }
+        }
     })
     RNDeviceRotation.start();
 
     const { StudyAppModule } = NativeModules;
     const lightEvent = new NativeEventEmitter(StudyAppModule);
     const lightSubscription = lightEvent.addListener('LightSensor', event => {
-        // console.log(event.light);
+        const {light} = event;
+        if (light < 5) isLight = true;
+        else isLight = false;
     })
     StudyAppModule.start();
 
-    useEffect(()=>{        
-        console.log(Dimensions.get('window').width)
+    useEffect(()=>{
         return () => {
             console.log("Timer Unmount")
             if (subscription) subscription.remove();
@@ -190,6 +230,7 @@ const StudyTimer = () => {
         }
     }, [])
 
+    // Set up of keeping app awake
     useEffect(()=>{
         (async function getData() {
             try {
@@ -202,10 +243,12 @@ const StudyTimer = () => {
         })()
     }, [isTimerSettingVisible])
 
+    // Modal Setting
     const [isTimerSettingVisible, setIsTimerSettingVisible] = useState(false);
     const [isStopWarningVisible, setIsStopWarningVisible] = useState(false);
     const [isSuccessMessageVisible, setIsSuccessMessageVisible] = useState(false);
     const [isSelectTimeVisible, setIsSelectTimeVisible] = useState(false);
+    const [isFlipWarningVisible, setIsFlipWarningVisible] = useState(false);
     
     const [buttonDisable, setButtonDisable] = useState(false);
 
@@ -226,6 +269,20 @@ const StudyTimer = () => {
                     saveData={saveDataToFirebase}
                     setTimerOn={setIsTimerOn}
                     setSecondsLeft={setSecondsLeft}
+                    setTimerOff={setTimerOff}
+                />
+            }
+            pressToExit={false}
+        />
+        <Modal
+            isModalVisible={isFlipWarningVisible}
+            setModalVisible={setIsFlipWarningVisible}
+            component={
+                <FlipWarning
+                    setModalVisible={setIsFlipWarningVisible}
+                    setSecondsLeft={setSecondsLeft}
+                    setTimerOff={setTimerOff}
+                    saveData={saveDataToFirebase}
                 />
             }
             pressToExit={false}
@@ -238,8 +295,9 @@ const StudyTimer = () => {
         <Modal
             isModalVisible={isSelectTimeVisible}
             setModalVisible={setIsSelectTimeVisible}
-            component={ <SelectTime setModalVisible={setIsSelectTimeVisible} setSecondsLeft={setSecondsLeft}/> }
+            component={ <SelectTime setModalVisible={setIsSelectTimeVisible} setSecondsLeft={setSecondsLeft} /> }
         />
+        
         <View style={{flex:1, paddingBottom: 15}}>
             <Card containerStyle={{flex:1}} wrapperStyle={{flex:1}}>
                 <Card.Title style={{fontSize:30}}>Study Timer</Card.Title>
@@ -269,7 +327,9 @@ const StudyTimer = () => {
                             if (isTimerOn) {                                            
                                 setButtonDisable(true);       
                                 setIsStopWarningVisible(true);
-                            }                            
+                            } else {
+                                isTimerStart = true;
+                            }
                             setIsTimerOn(isTimerOn => !isTimerOn)
                         }}
                         title={isTimerOn ? "Stop" : "Start"}
